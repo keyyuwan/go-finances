@@ -1,10 +1,14 @@
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 
 import { HighlightCard } from "../../components/HighlightCard";
 import {
   TransactionCard,
   TransactionCardProps,
 } from "../../components/TransactionCard";
+import { TRANSACTIONS_COLLECTION_NAME } from "../../utils/asyncStorage";
+import { formatCurrencyBRL } from "../../utils/formatCurrencyBRL";
 
 import {
   Container,
@@ -27,33 +31,77 @@ export interface ListData extends TransactionCardProps {
   id: string;
 }
 
+interface HighlightCardDataProps {
+  amount: string;
+}
+
+interface HighlightCardData {
+  incomes: HighlightCardDataProps;
+  outcomes: HighlightCardDataProps;
+  total: HighlightCardDataProps;
+}
+
 export function Dashboard() {
-  const data: ListData[] = [
-    {
-      id: "1",
-      type: "income",
-      title: "Desenvolvimento de site",
-      amount: "R$ 12.000,00",
-      category: { icon: "dollar-sign", name: "Vendas" },
-      date: "13/05/2022",
-    },
-    {
-      id: "2",
-      type: "outcome",
-      title: "Mc Donalds",
-      amount: "R$ 58,00",
-      category: { icon: "coffee", name: "Alimentação" },
-      date: "13/05/2022",
-    },
-    {
-      id: "3",
-      type: "outcome",
-      title: "Peita da Gucci",
-      amount: "R$ 3000,00",
-      category: { icon: "shopping-bag", name: "Compras" },
-      date: "13/05/2022",
-    },
-  ];
+  const [transactions, setTransactions] = useState<ListData[]>([]);
+  const [highlightCardData, setHighlightCardData] = useState<HighlightCardData>(
+    {} as HighlightCardData
+  );
+
+  async function loadTransactions() {
+    const transactions = await AsyncStorage.getItem(
+      TRANSACTIONS_COLLECTION_NAME
+    );
+    const transactionsList = transactions ? JSON.parse(transactions) : [];
+
+    let incomesSum = 0;
+    let outcomesSum = 0;
+
+    const transactionsFormatted: ListData[] = transactionsList.map(
+      (item: ListData) => {
+        if (item.transactionType === "income") {
+          incomesSum += Number(item.amount);
+        } else {
+          outcomesSum += Number(item.amount);
+        }
+
+        return {
+          ...item,
+          amount: formatCurrencyBRL(item.amount),
+          date: Intl.DateTimeFormat("pt-BR", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "2-digit",
+          }).format(new Date(item.date)),
+        };
+      }
+    );
+
+    setHighlightCardData({
+      incomes: {
+        amount: formatCurrencyBRL(incomesSum),
+      },
+
+      outcomes: {
+        amount: formatCurrencyBRL(outcomesSum),
+      },
+
+      total: {
+        amount: formatCurrencyBRL(incomesSum - outcomesSum),
+      },
+    });
+
+    setTransactions(transactionsFormatted);
+  }
+
+  useEffect(() => {
+    loadTransactions();
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadTransactions();
+    }, [])
+  );
 
   return (
     <Container>
@@ -77,19 +125,19 @@ export function Dashboard() {
       <HighlightCards>
         <HighlightCard
           title="Entradas"
-          amount="R$5000,00"
+          amount={highlightCardData.incomes.amount}
           lastTransactionDate="Última entrada dia 13 de maio"
           type="income"
         />
         <HighlightCard
           title="Saídas"
-          amount="R$2000,00"
+          amount={highlightCardData.outcomes.amount}
           lastTransactionDate="Última saída dia 13 de maio"
           type="outcome"
         />
         <HighlightCard
           title="Total"
-          amount="R$3000,00"
+          amount={highlightCardData.total.amount}
           lastTransactionDate="01  à 16 de maio"
           type="total"
         />
@@ -99,7 +147,7 @@ export function Dashboard() {
         <Title>Listagem</Title>
 
         <TransactionsList
-          data={data}
+          data={transactions}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <TransactionCard data={item} />}
         />

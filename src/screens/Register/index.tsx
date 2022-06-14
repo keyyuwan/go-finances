@@ -13,6 +13,7 @@ import { CategorySelectButton } from "../../components/Form/CategorySelectButton
 import { TransactionTypeButton } from "../../components/Form/TransactionTypeButton";
 import { ControlledInput } from "../../components/Form/ControlledInput";
 import { CategorySelect } from "../CategorySelect";
+import { TRANSACTIONS_COLLECTION_NAME } from "../../utils/asyncStorage";
 
 import {
   Container,
@@ -41,8 +42,6 @@ const schema = Yup.object().shape({
     .positive("Preço deve ser um valor positivo")
     .required("Preço é obrigatório"),
 });
-
-const COLLECTION_NAME = "@gofinance:transactions";
 
 export function Register() {
   const [transactionType, setTransactionType] = useState<TransactionType>("");
@@ -94,7 +93,9 @@ export function Register() {
     };
 
     try {
-      const transactions = await AsyncStorage.getItem(COLLECTION_NAME);
+      const transactions = await AsyncStorage.getItem(
+        TRANSACTIONS_COLLECTION_NAME
+      );
       const currentTransactions = transactions ? JSON.parse(transactions) : [];
 
       const transactionsWithTheNewOne = [
@@ -103,7 +104,7 @@ export function Register() {
       ];
 
       await AsyncStorage.setItem(
-        COLLECTION_NAME,
+        TRANSACTIONS_COLLECTION_NAME,
         JSON.stringify(transactionsWithTheNewOne)
       );
 
