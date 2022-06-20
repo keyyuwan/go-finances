@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { ActivityIndicator } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
+import { useTheme } from "styled-components";
 
 import { HighlightCard } from "../../components/HighlightCard";
 import {
@@ -25,6 +27,7 @@ import {
   Transactions,
   Title,
   TransactionsList,
+  LoadingContainer,
 } from "./styles";
 
 export interface ListData extends TransactionCardProps {
@@ -33,6 +36,7 @@ export interface ListData extends TransactionCardProps {
 
 interface HighlightCardDataProps {
   amount: string;
+  lastTransactionDate: string;
 }
 
 interface HighlightCardData {
@@ -42,10 +46,35 @@ interface HighlightCardData {
 }
 
 export function Dashboard() {
+  const [isLoading, setIsLoading] = useState(true);
   const [transactions, setTransactions] = useState<ListData[]>([]);
   const [highlightCardData, setHighlightCardData] = useState<HighlightCardData>(
     {} as HighlightCardData
   );
+
+  const theme = useTheme();
+
+  function getLastTransactionDate(
+    collection: ListData[],
+    transactionType: "income" | "outcome"
+  ) {
+    // returns the highest number that represents the most recent transaction date
+    const lastIncomeTransactionTimestamp = Math.max.apply(
+      Math,
+      collection
+        .filter(
+          (transaction) => transaction.transactionType === transactionType
+        )
+        .map((transaction) => new Date(transaction.date).getTime())
+    );
+
+    const lastIncomeTransactionDate = Intl.DateTimeFormat("pt-BR", {
+      day: "2-digit",
+      month: "long",
+    }).format(new Date(lastIncomeTransactionTimestamp));
+
+    return lastIncomeTransactionDate;
+  }
 
   async function loadTransactions() {
     const transactions = await AsyncStorage.getItem(
@@ -76,21 +105,35 @@ export function Dashboard() {
       }
     );
 
+    setTransactions(transactionsFormatted);
+
+    const lastIncomeTransactionDate = getLastTransactionDate(
+      transactionsList,
+      "income"
+    );
+    const lastOutcomeTransactionDate = getLastTransactionDate(
+      transactionsList,
+      "outcome"
+    );
+
     setHighlightCardData({
       incomes: {
         amount: formatCurrencyBRL(incomesSum),
+        lastTransactionDate: lastIncomeTransactionDate,
       },
 
       outcomes: {
         amount: formatCurrencyBRL(outcomesSum),
+        lastTransactionDate: lastOutcomeTransactionDate,
       },
 
       total: {
         amount: formatCurrencyBRL(incomesSum - outcomesSum),
+        lastTransactionDate: "01 a 03 de maio",
       },
     });
 
-    setTransactions(transactionsFormatted);
+    setIsLoading(false);
   }
 
   useEffect(() => {
@@ -105,53 +148,61 @@ export function Dashboard() {
 
   return (
     <Container>
-      <Header>
-        <UserWrapper>
-          <UserInfo>
-            <Avatar source={{ uri: "https://github.com/keyyuwan.png" }} />
+      {isLoading ? (
+        <LoadingContainer>
+          <ActivityIndicator color={theme.colors.primary} size="large" />
+        </LoadingContainer>
+      ) : (
+        <>
+          <Header>
+            <UserWrapper>
+              <UserInfo>
+                <Avatar source={{ uri: "https://github.com/keyyuwan.png" }} />
 
-            <User>
-              <Greetings>Olá,</Greetings>
-              <UserName>Key</UserName>
-            </User>
-          </UserInfo>
+                <User>
+                  <Greetings>Olá,</Greetings>
+                  <UserName>Key</UserName>
+                </User>
+              </UserInfo>
 
-          <LogoutButton onPress={() => {}}>
-            <Icon name="power" />
-          </LogoutButton>
-        </UserWrapper>
-      </Header>
+              <LogoutButton onPress={() => {}}>
+                <Icon name="power" />
+              </LogoutButton>
+            </UserWrapper>
+          </Header>
 
-      <HighlightCards>
-        <HighlightCard
-          title="Entradas"
-          amount={highlightCardData.incomes.amount}
-          lastTransactionDate="Última entrada dia 13 de maio"
-          type="income"
-        />
-        <HighlightCard
-          title="Saídas"
-          amount={highlightCardData.outcomes.amount}
-          lastTransactionDate="Última saída dia 13 de maio"
-          type="outcome"
-        />
-        <HighlightCard
-          title="Total"
-          amount={highlightCardData.total.amount}
-          lastTransactionDate="01  à 16 de maio"
-          type="total"
-        />
-      </HighlightCards>
+          <HighlightCards>
+            <HighlightCard
+              title="Entradas"
+              amount={highlightCardData.incomes.amount}
+              lastTransactionDate={`Última entrada dia ${highlightCardData.incomes.lastTransactionDate}`}
+              type="income"
+            />
+            <HighlightCard
+              title="Saídas"
+              amount={highlightCardData.outcomes.amount}
+              lastTransactionDate={`Última saída dia ${highlightCardData.outcomes.lastTransactionDate}`}
+              type="outcome"
+            />
+            <HighlightCard
+              title="Total"
+              amount={highlightCardData.total.amount}
+              lastTransactionDate={`01 à ${highlightCardData.outcomes.lastTransactionDate}`}
+              type="total"
+            />
+          </HighlightCards>
 
-      <Transactions>
-        <Title>Listagem</Title>
+          <Transactions>
+            <Title>Listagem</Title>
 
-        <TransactionsList
-          data={transactions}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <TransactionCard data={item} />}
-        />
-      </Transactions>
+            <TransactionsList
+              data={transactions}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => <TransactionCard data={item} />}
+            />
+          </Transactions>
+        </>
+      )}
     </Container>
   );
 }
