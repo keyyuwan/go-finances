@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { ActivityIndicator } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-import { useTheme } from "styled-components";
 
 import { HighlightCard } from "../../components/HighlightCard";
 import {
   TransactionCard,
   TransactionCardProps,
 } from "../../components/TransactionCard";
+import { Loading } from "../../components/Loading";
 import { TRANSACTIONS_COLLECTION_NAME } from "../../utils/asyncStorage";
 import { formatCurrencyBRL } from "../../utils/formatCurrencyBRL";
 
@@ -27,7 +26,6 @@ import {
   Transactions,
   Title,
   TransactionsList,
-  LoadingContainer,
 } from "./styles";
 
 export interface ListData extends TransactionCardProps {
@@ -51,8 +49,6 @@ export function Dashboard() {
   const [highlightCardData, setHighlightCardData] = useState<HighlightCardData>(
     {} as HighlightCardData
   );
-
-  const theme = useTheme();
 
   function getLastTransactionDate(
     collection: ListData[],
@@ -149,9 +145,7 @@ export function Dashboard() {
   return (
     <Container>
       {isLoading ? (
-        <LoadingContainer>
-          <ActivityIndicator color={theme.colors.primary} size="large" />
-        </LoadingContainer>
+        <Loading />
       ) : (
         <>
           <Header>

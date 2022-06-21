@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import styled from "styled-components/native";
 import { FlatList, FlatListProps } from "react-native";
 import { BorderlessButton } from "react-native-gesture-handler";
@@ -6,6 +7,10 @@ import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import { getStatusBarHeight } from "react-native-iphone-x-helper";
 
 import { ListData } from ".";
+
+interface LogoutButtonProps {
+  children: ReactNode;
+}
 
 export const Container = styled.View`
   flex: 1;
@@ -56,7 +61,7 @@ export const UserName = styled.Text`
   font-family: ${({ theme }) => theme.fonts.bold};
 `;
 
-export const LogoutButton = styled(BorderlessButton)``;
+export const LogoutButton = styled(BorderlessButton)<LogoutButtonProps>``;
 
 export const Icon = styled(Feather)`
   color: ${({ theme }) => theme.colors.secondary};
@@ -93,9 +98,3 @@ export const TransactionsList = styled(
   showsVerticalScrollIndicator: false,
   contentContainerStyle: { paddingBottom: getStatusBarHeight() },
 })``;
-
-export const LoadingContainer = styled.View`
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-`;
