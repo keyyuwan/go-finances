@@ -2,31 +2,15 @@ import React, { useState, useEffect, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 
-import { HighlightCard } from "../../components/HighlightCard";
-import {
-  TransactionCard,
-  TransactionCardProps,
-} from "../../components/TransactionCard";
+import { TransactionCardProps } from "../../components/TransactionCard";
 import { Loading } from "../../components/Loading";
+import { HighlightCards } from "./HighlightCards";
+import { TransactionsList } from "./TransactionsList";
+import { User } from "./User";
 import { TRANSACTIONS_COLLECTION_NAME } from "../../utils/asyncStorage";
 import { formatCurrencyBRL } from "../../utils/formatCurrencyBRL";
 
-import {
-  Container,
-  Header,
-  UserWrapper,
-  UserInfo,
-  Avatar,
-  User,
-  Greetings,
-  UserName,
-  LogoutButton,
-  Icon,
-  HighlightCards,
-  Transactions,
-  Title,
-  TransactionsList,
-} from "./styles";
+import { Container, Header } from "./styles";
 
 export interface ListData extends TransactionCardProps {
   id: string;
@@ -37,7 +21,7 @@ interface HighlightCardDataProps {
   lastTransactionDate: string;
 }
 
-interface HighlightCardData {
+export interface HighlightCardData {
   incomes: HighlightCardDataProps;
   outcomes: HighlightCardDataProps;
   total: HighlightCardDataProps;
@@ -149,52 +133,12 @@ export function Dashboard() {
       ) : (
         <>
           <Header>
-            <UserWrapper>
-              <UserInfo>
-                <Avatar source={{ uri: "https://github.com/keyyuwan.png" }} />
-
-                <User>
-                  <Greetings>Olá,</Greetings>
-                  <UserName>Key</UserName>
-                </User>
-              </UserInfo>
-
-              <LogoutButton onPress={() => {}}>
-                <Icon name="power" />
-              </LogoutButton>
-            </UserWrapper>
+            <User />
           </Header>
 
-          <HighlightCards>
-            <HighlightCard
-              title="Entradas"
-              amount={highlightCardData.incomes.amount}
-              lastTransactionDate={`Última entrada dia ${highlightCardData.incomes.lastTransactionDate}`}
-              type="income"
-            />
-            <HighlightCard
-              title="Saídas"
-              amount={highlightCardData.outcomes.amount}
-              lastTransactionDate={`Última saída dia ${highlightCardData.outcomes.lastTransactionDate}`}
-              type="outcome"
-            />
-            <HighlightCard
-              title="Total"
-              amount={highlightCardData.total.amount}
-              lastTransactionDate={`01 à ${highlightCardData.outcomes.lastTransactionDate}`}
-              type="total"
-            />
-          </HighlightCards>
+          <HighlightCards highlightCardData={highlightCardData} />
 
-          <Transactions>
-            <Title>Listagem</Title>
-
-            <TransactionsList
-              data={transactions}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => <TransactionCard data={item} />}
-            />
-          </Transactions>
+          <TransactionsList transactions={transactions} />
         </>
       )}
     </Container>
