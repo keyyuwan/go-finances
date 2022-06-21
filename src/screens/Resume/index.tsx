@@ -12,11 +12,10 @@ import { TRANSACTIONS_COLLECTION_NAME } from "../../utils/asyncStorage";
 import { categories } from "../../utils/categories";
 import { HistoryCard } from "../../components/HistoryCard";
 import { Loading } from "../../components/Loading";
+import { Header } from "../../components/Header";
 
 import {
   Container,
-  Header,
-  Title,
   Content,
   ChartContainer,
   MonthSelect,
@@ -128,9 +127,7 @@ export function Resume() {
 
   return (
     <Container>
-      <Header>
-        <Title>Resumo por categoria</Title>
-      </Header>
+      <Header title="Resumo por categoria" />
 
       {isLoading ? (
         <Loading />

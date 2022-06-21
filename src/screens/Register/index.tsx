@@ -8,6 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import uuid from "react-native-uuid";
 import { useNavigation } from "@react-navigation/native";
 
+import { Header } from "../../components/Header";
 import { Button } from "../../components/Form/Button";
 import { CategorySelectButton } from "../../components/Form/CategorySelectButton";
 import { TransactionTypeButton } from "../../components/Form/TransactionTypeButton";
@@ -15,14 +16,7 @@ import { ControlledInput } from "../../components/Form/ControlledInput";
 import { CategorySelect } from "../CategorySelect";
 import { TRANSACTIONS_COLLECTION_NAME } from "../../utils/asyncStorage";
 
-import {
-  Container,
-  Header,
-  Title,
-  Form,
-  Fields,
-  TransactionTypes,
-} from "./styles";
+import { Container, Form, Fields, TransactionTypes } from "./styles";
 
 interface NavigationProps {
   navigate: (name: string) => void;
@@ -132,9 +126,7 @@ export function Register() {
       style={{ height: "100%" }}
     >
       <Container>
-        <Header>
-          <Title>Cadastro</Title>
-        </Header>
+        <Header title="Cadastro" />
 
         <Form>
           <Fields>
