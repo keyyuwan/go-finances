@@ -15,6 +15,8 @@ import AppLoading from "expo-app-loading";
 import { NavigationContainer } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
+import { AuthProvider } from "./src/contexts/AuthContext";
+
 import { AppRoutes } from "./src/routes/app.routes";
 
 import theme from "./src/global/styles/theme";
@@ -36,8 +38,10 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider theme={theme}>
         <NavigationContainer>
-          <StatusBar barStyle="light-content" />
-          <SignIn />
+          <AuthProvider>
+            <StatusBar barStyle="light-content" />
+            <SignIn />
+          </AuthProvider>
         </NavigationContainer>
       </ThemeProvider>
     </GestureHandlerRootView>
