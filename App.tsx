@@ -12,16 +12,12 @@ import {
   Poppins_700Bold,
 } from "@expo-google-fonts/poppins";
 import AppLoading from "expo-app-loading";
-import { NavigationContainer } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { AuthProvider } from "./src/contexts/AuthContext";
-
-import { AppRoutes } from "./src/routes/app.routes";
+import { Routes } from "./src/routes";
 
 import theme from "./src/global/styles/theme";
-
-import { SignIn } from "./src/screens/SignIn";
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -37,12 +33,10 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider theme={theme}>
-        <NavigationContainer>
-          <AuthProvider>
-            <StatusBar barStyle="light-content" />
-            <SignIn />
-          </AuthProvider>
-        </NavigationContainer>
+        <AuthProvider>
+          <StatusBar barStyle="light-content" />
+          <Routes />
+        </AuthProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );
