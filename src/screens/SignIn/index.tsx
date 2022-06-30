@@ -1,5 +1,5 @@
-import React from "react";
-import { Alert, Platform } from "react-native";
+import React, { useState } from "react";
+import { Alert, Platform, ActivityIndicator } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
 
 import GoogleSvg from "../../assets/google.svg";
@@ -17,25 +17,34 @@ import {
   Footer,
   FooterWrapper,
 } from "./styles";
+import theme from "../../global/styles/theme";
 
 export function SignIn() {
   const { signInWithGoogle, signInWithApple } = useAuth();
 
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+
   async function handleSignInWithGoogle() {
-    await signInWithGoogle();
+    setIsAuthenticating(true);
+
     try {
+      return await signInWithGoogle();
     } catch (err) {
       console.log(err);
       Alert.alert("Não foi possível conectar a sua conta Google :(");
+      setIsAuthenticating(false);
     }
   }
 
   async function handleSignInWithApple() {
-    await signInWithApple();
+    setIsAuthenticating(true);
+
     try {
+      return await signInWithApple();
     } catch (err) {
       console.log(err);
       Alert.alert("Não foi possível conectar a sua conta Apple :(");
+      setIsAuthenticating(false);
     }
   }
 
@@ -78,6 +87,13 @@ export function SignIn() {
             />
           )}
         </FooterWrapper>
+
+        {isAuthenticating ? (
+          <ActivityIndicator
+            color={theme.colors.shape}
+            style={{ marginTop: 18 }}
+          />
+        ) : null}
       </Footer>
     </Container>
   );

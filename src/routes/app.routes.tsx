@@ -7,7 +7,7 @@ const { Navigator, Screen } = createStackNavigator();
 // Public routes
 export function AppRoutes() {
   return (
-    <Navigator>
+    <Navigator screenOptions={{ headerShown: false }}>
       <Screen name="SignIn" component={SignIn} />
     </Navigator>
   );

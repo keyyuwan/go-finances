@@ -15,6 +15,7 @@ import AppLoading from "expo-app-loading";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { AuthProvider } from "./src/contexts/AuthContext";
+import { useAuth } from "./src/hooks/useAuth";
 import { Routes } from "./src/routes";
 
 import theme from "./src/global/styles/theme";
@@ -26,7 +27,9 @@ export default function App() {
     Poppins_700Bold,
   });
 
-  if (!fontsLoaded) {
+  const { isUserStoragedLoading } = useAuth();
+
+  if (!fontsLoaded || isUserStoragedLoading) {
     return <AppLoading />;
   }
 

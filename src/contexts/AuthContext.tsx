@@ -17,6 +17,8 @@ interface AuthContextData {
   signInWithGoogle: () => Promise<void>;
   signInWithApple: () => Promise<void>;
   isAuthenticated: boolean;
+  signOut: () => Promise<void>;
+  isUserStoragedLoading: boolean;
 }
 
 interface AuthProviderProps {
@@ -97,11 +99,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       });
 
       if (credential) {
+        const name = credential.fullName!.givenName;
+
         const userLogged = {
           id: String(credential.user),
           name: credential.fullName!.givenName!,
           email: credential.email!,
-          img: undefined,
+          img: `https://ui-avatars.com/api/?name=${name}&length=1`,
         };
         setUser(userLogged);
 
@@ -115,13 +119,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  async function signOut() {
+    setUser({} as User);
+    await AsyncStorage.removeItem(USER_COLLECTION_NAME);
+  }
+
   return (
     <AuthContext.Provider
       value={{
         user,
         signInWithGoogle,
         signInWithApple,
-        isAuthenticated: !!user,
+        isAuthenticated: !!user.id,
+        signOut,
+        isUserStoragedLoading,
       }}
     >
       {children}
