@@ -8,6 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import uuid from "react-native-uuid";
 import { useNavigation } from "@react-navigation/native";
 
+import { useAuth } from "../../hooks/useAuth";
 import { Header } from "../../components/Header";
 import { Button } from "../../components/Form/Button";
 import { CategorySelectButton } from "../../components/Form/CategorySelectButton";
@@ -38,6 +39,8 @@ const schema = Yup.object().shape({
 });
 
 export function Register() {
+  const { user } = useAuth();
+
   const [transactionType, setTransactionType] = useState<TransactionType>("");
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [category, setCategory] = useState({
@@ -87,9 +90,8 @@ export function Register() {
     };
 
     try {
-      const transactions = await AsyncStorage.getItem(
-        TRANSACTIONS_COLLECTION_NAME
-      );
+      const dataKey = `@goFinances:transactions_user:${user.id}`;
+      const transactions = await AsyncStorage.getItem(dataKey);
       const currentTransactions = transactions ? JSON.parse(transactions) : [];
 
       const transactionsWithTheNewOne = [
@@ -98,7 +100,7 @@ export function Register() {
       ];
 
       await AsyncStorage.setItem(
-        TRANSACTIONS_COLLECTION_NAME,
+        dataKey,
         JSON.stringify(transactionsWithTheNewOne)
       );
 

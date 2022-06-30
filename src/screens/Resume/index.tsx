@@ -4,7 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { addMonths, subMonths } from "date-fns";
 
-import { TRANSACTIONS_COLLECTION_NAME } from "../../utils/asyncStorage";
+import { useAuth } from "../../hooks/useAuth";
 import { categories } from "../../utils/categories";
 import { Loading } from "../../components/Loading";
 import { Header } from "../../components/Header";
@@ -32,6 +32,8 @@ export interface CategoryTotal {
 }
 
 export function Resume() {
+  const { user } = useAuth();
+
   const [isLoading, setIsLoading] = useState(false);
   const [totalByCategories, setTotalByCategories] = useState<CategoryTotal[]>(
     []
@@ -51,9 +53,8 @@ export function Resume() {
   async function loadTransactions() {
     setIsLoading(true);
 
-    const transactions = await AsyncStorage.getItem(
-      TRANSACTIONS_COLLECTION_NAME
-    );
+    const dataKey = `@goFinances:transactions_user:${user.id}`;
+    const transactions = await AsyncStorage.getItem(dataKey);
     const transactionsList = transactions ? JSON.parse(transactions) : [];
 
     const outcomes = transactionsList.filter(

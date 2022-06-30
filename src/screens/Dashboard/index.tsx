@@ -7,10 +7,10 @@ import { Loading } from "../../components/Loading";
 import { HighlightCards } from "./HighlightCards";
 import { TransactionsList } from "./TransactionsList";
 import { User } from "./User";
-import { TRANSACTIONS_COLLECTION_NAME } from "../../utils/asyncStorage";
 import { formatCurrencyBRL } from "../../utils/formatCurrencyBRL";
 
 import { Container, Header } from "./styles";
+import { useAuth } from "../../hooks/useAuth";
 
 export interface ListData extends TransactionCardProps {
   id: string;
@@ -18,7 +18,7 @@ export interface ListData extends TransactionCardProps {
 
 interface HighlightCardDataProps {
   amount: string;
-  lastTransactionDate: string;
+  lastTransaction: string;
 }
 
 export interface HighlightCardData {
@@ -28,6 +28,8 @@ export interface HighlightCardData {
 }
 
 export function Dashboard() {
+  const { user } = useAuth();
+
   const [isLoading, setIsLoading] = useState(true);
   const [transactions, setTransactions] = useState<ListData[]>([]);
   const [highlightCardData, setHighlightCardData] = useState<HighlightCardData>(
@@ -38,14 +40,20 @@ export function Dashboard() {
     collection: ListData[],
     transactionType: "income" | "outcome"
   ) {
+    const collectionFiltered = collection.filter(
+      (transaction) => transaction.transactionType === transactionType
+    );
+
+    if (collectionFiltered.length === 0) {
+      return 0;
+    }
+
     // returns the highest number that represents the most recent transaction date
     const lastIncomeTransactionTimestamp = Math.max.apply(
       Math,
-      collection
-        .filter(
-          (transaction) => transaction.transactionType === transactionType
-        )
-        .map((transaction) => new Date(transaction.date).getTime())
+      collectionFiltered.map((transaction) =>
+        new Date(transaction.date).getTime()
+      )
     );
 
     const lastIncomeTransactionDate = Intl.DateTimeFormat("pt-BR", {
@@ -57,9 +65,8 @@ export function Dashboard() {
   }
 
   async function loadTransactions() {
-    const transactions = await AsyncStorage.getItem(
-      TRANSACTIONS_COLLECTION_NAME
-    );
+    const dataKey = `@goFinances:transactions_user:${user.id}`;
+    const transactions = await AsyncStorage.getItem(dataKey);
     const transactionsList = transactions ? JSON.parse(transactions) : [];
 
     let incomesSum = 0;
@@ -95,21 +102,29 @@ export function Dashboard() {
       transactionsList,
       "outcome"
     );
+    const totalInterval =
+      lastOutcomeTransactionDate === 0
+        ? "Não há transações"
+        : `01 a ${lastOutcomeTransactionDate}`;
 
     setHighlightCardData({
       incomes: {
         amount: formatCurrencyBRL(incomesSum),
-        lastTransactionDate: lastIncomeTransactionDate,
+        lastTransaction:
+          lastIncomeTransactionDate === 0
+            ? "Não há transações"
+            : `Última entrada dia ${lastIncomeTransactionDate}`,
       },
-
       outcomes: {
         amount: formatCurrencyBRL(outcomesSum),
-        lastTransactionDate: lastOutcomeTransactionDate,
+        lastTransaction:
+          lastOutcomeTransactionDate === 0
+            ? "Não há transações"
+            : `Última saída dia ${lastOutcomeTransactionDate}`,
       },
-
       total: {
         amount: formatCurrencyBRL(incomesSum - outcomesSum),
-        lastTransactionDate: "01 a 03 de maio",
+        lastTransaction: totalInterval,
       },
     });
 

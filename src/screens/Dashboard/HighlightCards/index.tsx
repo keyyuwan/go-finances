@@ -15,19 +15,19 @@ export function HighlightCards({ highlightCardData }: HighlightCardsProps) {
       <HighlightCard
         title="Entradas"
         amount={highlightCardData.incomes.amount}
-        lastTransactionDate={`Última entrada dia ${highlightCardData.incomes.lastTransactionDate}`}
+        lastTransactionDate={highlightCardData.incomes.lastTransaction}
         type="income"
       />
       <HighlightCard
         title="Saídas"
         amount={highlightCardData.outcomes.amount}
-        lastTransactionDate={`Última saída dia ${highlightCardData.outcomes.lastTransactionDate}`}
+        lastTransactionDate={highlightCardData.outcomes.lastTransaction}
         type="outcome"
       />
       <HighlightCard
         title="Total"
         amount={highlightCardData.total.amount}
-        lastTransactionDate={`01 à ${highlightCardData.outcomes.lastTransactionDate}`}
+        lastTransactionDate={highlightCardData.total.lastTransaction}
         type="total"
       />
     </Container>
