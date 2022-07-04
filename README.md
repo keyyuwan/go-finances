@@ -11,7 +11,11 @@ With this application you can have an easy overview of your daily transactions.
 
 ## 📸 Project GIF:
 
-Cooming soon...
+<div style="display: flex;">
+  <img src="./.github/gifs/auth.gif" alt="goFinances authentication proccess" height="400px" />
+  <img src="./.github/gifs/register.gif" alt="transaction register proccess" height="400px" style="margin-left: 16px;" />
+  <img src="./.github/gifs/chart.gif" alt="goFinances chart" height="400px" style="margin-left: 16px;" />
+</div>
 
 ## 💻 Project:
 
